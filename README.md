@@ -8,11 +8,15 @@ This project was built to practice computer architecture concepts including inst
 
 ## Overview
 
+This project currently supports arithmetic, logical, memory, branch, and jump instructions and serves as the foundation for a future pipelined RISC-V processor.
+
 This CPU implements a small RV32I-style instruction subset and executes instructions from a hex-loaded instruction memory.
 
 The first version focuses on a clean single-cycle datapath where each instruction completes in one clock cycle.
 
-Current supported instructions include:
+---
+
+## Supported Instructions
 
 - ADD
 - SUB
@@ -20,6 +24,10 @@ Current supported instructions include:
 - OR
 - XOR
 - ADDI
+- LW
+- SW
+- BEQ
+- JAL
 
 ---
 
@@ -63,43 +71,15 @@ Writeback
 
 ---
 
-## Test Program
+## Arithmetic and Logic Verification
 
-The current test program runs:
+This verification program tests arithmetic and logical instructions executed through the ALU and confirms correct register writeback behavior.
 
-```text
-addi x1, x0, 5
-addi x2, x0, 10
-add  x3, x1, x2
-sub  x4, x3, x1
-and  x5, x1, x3
-or   x6, x1, x3
-xor  x7, x1, x3
-```
+![ALU Output](docs/alu-verification-output.png)
 
-Expected register results:
+![ALU Waveform](docs/alu-verification-waveform.png)
 
-```text
-x1 = 5
-x2 = 10
-x3 = 15
-x4 = 10
-x5 = 5
-```
-
----
-
-## Simulation Result
-
-![Register Output](docs/register-output.png)
-
-The terminal output confirms that the CPU correctly fetched, decoded, executed, and wrote back the expected register values.
-
----
-
-## Waveform Verification
-
-![Single Cycle Waveform](docs/waveform-single-cycle.png)
+The waveform confirms correct instruction fetch, ALU execution, and register writeback for arithmetic and logical operations.
 
 The waveform shows:
 
@@ -108,6 +88,36 @@ The waveform shows:
 - instruction memory output changing each cycle
 - ALU results matching instruction execution
 - writeback data updating register values
+
+---
+
+## Memory and Control Flow Verification
+
+![Control Flow Output](docs/control-flow-output.png)
+
+This verification program tests memory operations and control-flow instructions.
+
+The test confirms:
+
+- SW stores values into data memory
+- LW loads values back into registers
+- BEQ correctly branches when registers match
+- JAL stores a return address and jumps to the target instruction
+
+Expected final state:
+
+```text
+x1 = 42
+x2 = 42
+x3 = 0
+x4 = 24
+x5 = 7
+mem[0] = 42
+```
+
+![Control Flow Waveform](docs/control-flow-waveform.png)
+
+The waveform shows successful memory access, branch execution, and jump behavior while the program counter advances through the instruction stream.
 
 ---
 
@@ -151,14 +161,17 @@ riscv-pipeline-cpu/
 │   └── tb_cpu_single_cycle.v
 │
 ├── programs/
-│   └── add_test.hex
+│   ├── alu_validation.hex
+│   └── memory_branch_jump.hex
 │
 ├── waves/
 │   └── cpu_single_cycle.vcd
 │
 ├── docs/
-│   ├── register-output.png
-│   └── waveform-single-cycle.png
+│   ├── alu-verification-output.png
+│   ├── alu-verification-waveform.png
+│   ├── control-flow-output.png
+│   └── control-flow-waveform.png
 │
 └── README.md
 ```
@@ -177,10 +190,11 @@ riscv-pipeline-cpu/
 
 ---
 
-## Future Work
+## Next Steps
 
-- Add load/store instruction tests
-- Add branch and jump tests
+- Expand the RV32I instruction subset
+- Add additional load and store variants
 - Implement a 5-stage pipeline
 - Add hazard detection and forwarding
-- Build a small pipeline visualization dashboard
+- Support pipeline stalling and flushing
+- Execute larger RISC-V programs
