@@ -7,7 +7,7 @@ The project currently includes a fully functional single-cycle CPU and an instru
 
 ## Overview
 
-This project currently supports arithmetic, logical, memory, branch, and jump instructions through a single-cycle datapath and includes an instruction-trace pipeline model that demonstrates instruction movement through a 5-stage pipeline.
+The project currently includes a fully functional single-cycle CPU, memory and control-flow verification, a pipeline trace model, and a functional pipelined datapath capable of executing instructions through IF, ID, EX, MEM, and WB stages.
 
 The long-term goal is to evolve the design into a fully pipelined RV32I processor with hazard detection, forwarding, and control-flow handling.
 
@@ -70,7 +70,11 @@ Writeback
 | `data_mem.v` | Provides memory support for future load/store tests |
 | `cpu_single_cycle.v` | Connects all datapath components together |
 | `cpu_pipeline_trace.v` | Demonstrates instruction movement through a 5-stage pipeline |
+| `instr_mem_pipeline.v` | Instruction memory used by the functional pipeline |
+| `cpu_pipeline_basic.v` | Functional 5-stage pipeline datapath implementation |
+
 ---
+
 
 ## Arithmetic and Logic Verification
 
@@ -153,6 +157,36 @@ This confirms that instructions advance through the IF, ID, EX, MEM, and WB stag
 
 ---
 
+## Functional Pipeline Verification
+
+After validating instruction movement through the pipeline, the next step was executing instructions through a functional pipelined datapath.
+
+This implementation carries instruction data through the IF, ID, EX, MEM, and WB stages while preserving stage separation using pipeline registers. Arithmetic operations are executed by the ALU, propagated through the pipeline, and written back to the register file.
+
+### Results
+
+![Functional Pipeline Output](docs/functional-pipeline-output.png)
+
+Verified register state:
+
+```text
+x1 = 5
+x2 = 10
+x3 = 15
+x4 = 20
+x5 = 25
+```
+
+### Waveform
+
+![Functional Pipeline Waveform](docs/functional-pipeline-waveform.png)
+
+The waveform shows instructions progressing through multiple pipeline stages simultaneously while intermediate values advance between stage registers. ALU results, destination registers, and writeback data can be observed moving through the datapath before being committed to the register file.
+
+This verification confirms successful instruction execution through a functional 5-stage pipeline and establishes the foundation for future hazard detection, forwarding, and pipeline control logic.
+
+---
+
 ## Running the Simulation
 
 Compile:
@@ -185,21 +219,22 @@ riscv-pipeline-cpu/
 │   ├── control.v
 │   ├── cpu_single_cycle.v
 │   ├── cpu_pipeline_trace.v
+│   ├── cpu_pipeline_basic.v
 │   ├── data_mem.v
 │   ├── imm_gen.v
 │   ├── instr_mem.v
+│   ├── instr_mem_pipeline.v
 │   └── regfile.v
 │
 ├── sim/
 │   ├── tb_cpu_single_cycle.v
-│   └── tb_pipeline_trace.v
+│   ├── tb_pipeline_trace.v
+│   └── tb_pipeline_basic.v
 │
 ├── programs/
 │   ├── alu_validation.hex
-│   └── memory_branch_jump.hex
-│
-├── waves/
-│   └── cpu_single_cycle.vcd
+│   ├── memory_branch_jump.hex
+│   └── pipeline_basic.hex
 │
 ├── docs/
 │   ├── alu-verification-output.png
@@ -207,8 +242,10 @@ riscv-pipeline-cpu/
 │   ├── control-flow-output.png
 │   ├── control-flow-waveform.png
 │   ├── pipeline-stage-trace.png
-│   └── pipeline-stage-trace-output.png
-|
+│   ├── pipeline-stage-trace-output.png
+│   ├── functional-pipeline-output.png
+│   └── functional-pipeline-waveform.png
+│
 └── README.md
 ```
 
@@ -226,6 +263,10 @@ riscv-pipeline-cpu/
 - Five-stage pipeline fundamentals
 - Pipeline register design
 - Instruction flow visualization
+- Functional pipelined datapath design
+- Pipeline register implementation
+- Multi-stage instruction execution
+- Register writeback verification
 
 ---
 
@@ -233,8 +274,7 @@ riscv-pipeline-cpu/
 
 - Expand the RV32I instruction subset
 - Add additional load and store variants
-- Convert the pipeline trace model into a functional 5-stage pipeline
-- Add pipeline registers carrying data and control signals
 - Add hazard detection and forwarding
 - Support pipeline stalling and flushing
 - Execute larger RISC-V programs
+- Expand the instruction subset
