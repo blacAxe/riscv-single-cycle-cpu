@@ -1,14 +1,15 @@
-# RISC-V Single Cycle CPU
+# RISC-V CPU Architecture
 
-A Verilog implementation of a small single-cycle RISC-V CPU core built from scratch and verified with Icarus Verilog and GTKWave.
+A Verilog implementation of a RISC-V CPU built from scratch and verified with Icarus Verilog and GTKWave.
 
-This project was built to practice computer architecture concepts including instruction fetch, decode, register files, ALU execution, control signals, program counter updates, and waveform-based debugging.
-
+The project currently includes a fully functional single-cycle CPU and an instruction-trace pipeline model used to validate instruction flow through a classic 5-stage pipeline architecture.
 ---
 
 ## Overview
 
-This project currently supports arithmetic, logical, memory, branch, and jump instructions and serves as the foundation for a future pipelined RISC-V processor.
+This project currently supports arithmetic, logical, memory, branch, and jump instructions through a single-cycle datapath and includes an instruction-trace pipeline model that demonstrates instruction movement through a 5-stage pipeline.
+
+The long-term goal is to evolve the design into a fully pipelined RV32I processor with hazard detection, forwarding, and control-flow handling.
 
 This CPU implements a small RV32I-style instruction subset and executes instructions from a hex-loaded instruction memory.
 
@@ -68,7 +69,7 @@ Writeback
 | `instr_mem.v` | Loads machine code instructions from hex files |
 | `data_mem.v` | Provides memory support for future load/store tests |
 | `cpu_single_cycle.v` | Connects all datapath components together |
-
+| `cpu_pipeline_trace.v` | Demonstrates instruction movement through a 5-stage pipeline |
 ---
 
 ## Arithmetic and Logic Verification
@@ -121,6 +122,37 @@ The waveform shows successful memory access, branch execution, and jump behavior
 
 ---
 
+## Pipeline Stage Trace Verification
+
+The project also includes a pipeline trace model used to verify instruction movement through a classic 5-stage pipeline.
+
+Pipeline stages:
+
+- IF (Instruction Fetch)
+- ID (Instruction Decode)
+- EX (Execute)
+- MEM (Memory Access)
+- WB (Write Back)
+
+![Pipeline Trace Output](docs/pipeline-stage-trace-output.png)
+
+![Pipeline Stage Trace](docs/pipeline-stage-trace.png)
+
+The waveform shows multiple instructions occupying different pipeline stages simultaneously.
+
+Example pipeline state:
+
+```text
+IF/ID  = 0080026f
+ID/EX  = 06f00193
+EX/MEM = 00208463
+MEM/WB = 00002103
+```
+
+This confirms that instructions advance through the IF, ID, EX, MEM, and WB stages one clock cycle at a time and establishes the foundation for a future pipelined implementation.
+
+---
+
 ## Running the Simulation
 
 Compile:
@@ -152,13 +184,15 @@ riscv-pipeline-cpu/
 │   ├── alu.v
 │   ├── control.v
 │   ├── cpu_single_cycle.v
+│   ├── cpu_pipeline_trace.v
 │   ├── data_mem.v
 │   ├── imm_gen.v
 │   ├── instr_mem.v
 │   └── regfile.v
 │
 ├── sim/
-│   └── tb_cpu_single_cycle.v
+│   ├── tb_cpu_single_cycle.v
+│   └── tb_pipeline_trace.v
 │
 ├── programs/
 │   ├── alu_validation.hex
@@ -171,8 +205,10 @@ riscv-pipeline-cpu/
 │   ├── alu-verification-output.png
 │   ├── alu-verification-waveform.png
 │   ├── control-flow-output.png
-│   └── control-flow-waveform.png
-│
+│   ├── control-flow-waveform.png
+│   ├── pipeline-stage-trace.png
+│   └── pipeline-stage-trace-output.png
+|
 └── README.md
 ```
 
@@ -187,6 +223,9 @@ riscv-pipeline-cpu/
 - Instruction decoding and control signals
 - Waveform-based verification
 - Computer architecture fundamentals
+- Five-stage pipeline fundamentals
+- Pipeline register design
+- Instruction flow visualization
 
 ---
 
@@ -194,7 +233,8 @@ riscv-pipeline-cpu/
 
 - Expand the RV32I instruction subset
 - Add additional load and store variants
-- Implement a 5-stage pipeline
+- Convert the pipeline trace model into a functional 5-stage pipeline
+- Add pipeline registers carrying data and control signals
 - Add hazard detection and forwarding
 - Support pipeline stalling and flushing
 - Execute larger RISC-V programs

@@ -6,7 +6,7 @@ module instr_mem (
     reg [31:0] memory [0:255];
 
     initial begin
-        $readmemh("programs/week2_test.hex", memory);
+        $readmemh("programs/memory_branch_jump.hex", memory);
     end
 
     assign instr = memory[addr[31:2]];
